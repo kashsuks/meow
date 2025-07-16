@@ -1,4 +1,5 @@
 import sys
+from operators import evalExpression
 
 MEOW_KEYWORDS = {
     "meow": "PRINT"
@@ -11,10 +12,20 @@ def parseLine(line):
     if not line:
         return
 
-    # Check for assignment
+    # assignment
     if "=" in line:
-        varname, expr = map(str.strip, line.split("=", 1))
-        variables[varname] = expr
+        varName, expr = map(str.strip, line.split("=", 1))
+
+        tokens = expr.split()
+        first = tokens[0].lower() if tokens else ""
+
+        if first in MEOW_KEYWORDS:
+            variables[varName] = expr
+        elif expr.startswith('"') and expr.endswith('"'):
+            variables[varName] = expr
+        else:
+            result = evalExpression(expr, variables)
+            variables[varName] = result
         return
 
     tokens = line.split()
@@ -33,8 +44,13 @@ def parseLine(line):
                     raise Exception(f"Variable '{expr}' not defined.")
                 print(value)
     elif line in variables:
-        # Execute the code stored in the variable
-        parseLine(variables[line])
+        value = variables[line]
+        if isinstance(value, (int, float)):
+            print(value)
+        elif isinstance(value, str) and value.startswith('"') and value.endswith('"'):
+            print(value[1:-1])
+        else:
+            parseLine(value)
     else:
         raise Exception(f"Unknown keyword or variable: {line}")
 
@@ -48,6 +64,6 @@ if __name__ == "__main__":
     if len(sys.argv) < 2:
         print("Usage: python main.py program.meow")
         sys.exit(1)
-    
+
     filepath = sys.argv[1]
     run(filepath)

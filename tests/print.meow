@@ -1,2 +1,11 @@
-var = meow "Hello, world!"
-var
+x = 5
+y = 10
+z = x + y * 2
+meow z
+
+message = meow "Hello world!"
+message
+
+numMessage = "The result is:"
+meow numMessage
+meow z
